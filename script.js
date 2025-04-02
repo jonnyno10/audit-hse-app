@@ -1,4 +1,4 @@
-const CLIENT_ID = '972446330294-l5mgbh2q5v1fo5aor6pe5k0de22n6282.apps.googleusercontent.com'; // Inserisci qui il tuo Client ID OAuth 2.0
+const CLIENT_ID = '972446330294-6opgnfhpm280c4n280h8pb6uphuqbnnt.apps.googleusercontent.com'; // Inserisci qui il tuo Client ID OAuth 2.0
 const API_KEY = 'AIzaSyA5jmTA54BAziJFzNfFH9Vf3mFen8kTfjM';     // Inserisci qui la tua API Key
 const DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
 const SCOPES = "https://www.googleapis.com/auth/drive.readonly";
