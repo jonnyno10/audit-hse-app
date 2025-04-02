@@ -1,5 +1,5 @@
-const CLIENT_ID = '972446330294-6opgnfhpm280c4n280h8pb6uphuqbnnt.apps.googleusercontent.com'; // Inserisci qui il tuo Client ID OAuth 2.0
-const API_KEY = 'AIzaSyA5jmTA54BAziJFzNfFH9Vf3mFen8kTfjM';     // Inserisci qui la tua API Key
+const CLIENT_ID = '972446330294-6opgnfhpm280c4n280h8pb6uphuqbnnt.apps.googleusercontent.com'; // Client ID OAuth 2.0
+const API_KEY = 'AIzaSyA5jmTA54BAziJFzNfFH9Vf3mFen8kTfjM'; // La tua API Key
 const DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
 const SCOPES = "https://www.googleapis.com/auth/drive.readonly";
 
@@ -24,13 +24,30 @@ function handleAuthClick() {
     gapi.auth2.getAuthInstance().signIn();
 }
 
-// Funzione per disconnettersi
-function handleSignoutClick() {
-    gapi.auth2.getAuthInstance().signOut();
+// Funzione per selezionare un file da Google Drive
+function pickFile() {
+    gapi.load('picker', {'callback': createPicker});
+}
+
+function createPicker() {
+    const picker = new google.picker.PickerBuilder()
+        .addView(new google.picker.DocsView().setIncludeFolders(true).setSelectFolderEnabled(true))
+        .setOAuthToken(gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token)
+        .setDeveloperKey(API_KEY)
+        .setCallback(pickerCallback)
+        .build();
+    picker.setVisible(true);
+}
+
+function pickerCallback(data) {
+    if (data.action == google.picker.Action.PICKED) {
+        const fileId = data.docs[0].id;
+        loadFileFromDrive(fileId);
+    }
 }
 
 // Funzione per caricare un file da Google Drive
-function loadFile(fileId) {
+function loadFileFromDrive(fileId) {
     gapi.client.drive.files.get({
         fileId: fileId,
         alt: 'media'
@@ -39,20 +56,21 @@ function loadFile(fileId) {
         const workbook = XLSX.read(data, { type: 'binary' });
         const sheetName = workbook.SheetNames[0];
         const sheet = workbook.Sheets[sheetName];
-        const json = XLSX.utils.sheet_to_json(sheet);
+        const jsonData = XLSX.utils.sheet_to_json(sheet);
         
-        console.log(json); // Per vedere l'output in console
-        popolaTabella(json);
+        // Popola la tabella con i dati estratti
+        popolaTabella(jsonData);
     }, error => {
         console.error("Errore nel caricamento del file: ", error);
     });
 }
 
-// Funzione per popolare la tabella HTML
+// Funzione per popolare la tabella con i dati del file Excel
 function popolaTabella(dati) {
     const tbody = document.querySelector("table tbody");
-    tbody.innerHTML = ''; // Svuota la tabella prima di popolarla
+    tbody.innerHTML = ''; // Pulisce la tabella prima di aggiungere nuovi dati
 
+    // Aggiungi una riga per ogni elemento nel file Excel
     dati.forEach((domanda, index) => {
         const row = document.createElement('tr');
         row.innerHTML = `
