@@ -1,14 +1,17 @@
 let startX, startY;
 
-function handleDragStart(event) {
-    startX = event.clientX;
-    startY = event.clientY;
+function handleTouchStart(event) {
+    const touch = event.touches[0];
+    startX = touch.clientX;
+    startY = touch.clientY;
 }
 
-function handleDrag(event, row) {
+function handleTouchMove(event, row) {
+    event.preventDefault(); // Evita lo scrolling accidentale
+    const touch = event.touches[0];
     const statusCell = row.cells[2];
-    const movementX = event.clientX - startX;
-    const movementY = event.clientY - startY;
+    const movementX = touch.clientX - startX;
+    const movementY = touch.clientY - startY;
 
     // Determina la direzione del movimento e mostra anteprima del colore e del testo
     if (Math.abs(movementX) > Math.abs(movementY)) {
@@ -30,10 +33,11 @@ function handleDrag(event, row) {
     }
 }
 
-function handleDragEnd(event, row) {
+function handleTouchEnd(event, row) {
+    const touch = event.changedTouches[0];
     const statusCell = row.cells[2];
-    const movementX = event.clientX - startX;
-    const movementY = event.clientY - startY;
+    const movementX = touch.clientX - startX;
+    const movementY = touch.clientY - startY;
 
     // Conferma il colore e lo stato definitivo
     if (Math.abs(movementX) > Math.abs(movementY)) {
@@ -56,9 +60,9 @@ function handleDragEnd(event, row) {
 }
 
 document.querySelectorAll("tr[draggable=true]").forEach(row => {
-    row.addEventListener("dragstart", handleDragStart);
-    row.addEventListener("drag", (event) => handleDrag(event, row));
-    row.addEventListener("dragend", (event) => handleDragEnd(event, row));
+    row.addEventListener("touchstart", handleTouchStart);
+    row.addEventListener("touchmove", (event) => handleTouchMove(event, row));
+    row.addEventListener("touchend", (event) => handleTouchEnd(event, row));
 });
 
 function confermaChecklist() {
