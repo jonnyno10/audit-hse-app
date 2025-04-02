@@ -5,36 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Audit Documentale Sicurezza</title>
     <link rel="stylesheet" href="styles.css">
+
+    <!-- Inclusione librerie necessarie -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script defer src="script.js"></script>
 </head>
-<body>
+<body onload="handleClientLoad()">
     <header>
         Audit Documentale Sicurezza
     </header>
     <div class="container">
         <h2>Checklist Audit</h2>
+        <button onclick="handleAuthClick()">Accedi a Google Drive</button>
+        <button onclick="loadFile(972446330294-nir948gv3j91qa89r3gil7unrc58roi5.apps.googleusercontent.com)">Carica File Excel</button>
+        
         <table>
-            <tr>
-                <th>#</th>
-                <th>Domanda</th>
-                <th>Stato</th>
-                <th>Note</th>
-            </tr>
-            <tr draggable="true" ondragend="handleDrag(event, this)">
-                <td>1</td>
-                <td>Verifica documentazione valutazione rischi</td>
-                <td class="status vuoto">-</td>
-                <td><textarea rows="2"></textarea></td>
-            </tr>
-            <tr draggable="true" ondragend="handleDrag(event, this)">
-                <td>2</td>
-                <td>Controllo registro infortuni</td>
-                <td class="status vuoto">-</td>
-                <td><textarea rows="2"></textarea></td>
-            </tr>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Domanda</th>
+                    <th>Stato</th>
+                    <th>Note</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
         </table>
-        <button onclick="confermaChecklist()">Conferma</button>
     </div>
-    
-    <script src="script.js"></script>
 </body>
 </html>
