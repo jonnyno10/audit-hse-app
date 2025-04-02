@@ -1,90 +1,66 @@
-let startX, startY;
-let isDragging = false;
+const CLIENT_ID = 'IL_TUO_CLIENT_ID'; // Inserisci qui il tuo Client ID OAuth 2.0
+const API_KEY = 'IL_TUO_API_KEY';     // Inserisci qui la tua API Key
+const DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
+const SCOPES = "https://www.googleapis.com/auth/drive.readonly";
 
-function disableScroll() {
-    document.body.style.overflow = "hidden";
+// Inizializzazione dell'API Google
+function handleClientLoad() {
+    gapi.load('client:auth2', initClient);
 }
 
-function enableScroll() {
-    document.body.style.overflow = "auto";
+function initClient() {
+    gapi.client.init({
+        apiKey: API_KEY,
+        clientId: CLIENT_ID,
+        discoveryDocs: DISCOVERY_DOCS,
+        scope: SCOPES
+    }).then(() => {
+        console.log("API Inizializzata correttamente!");
+    });
 }
 
-function handleTouchStart(event) {
-    const touch = event.touches[0];
-    startX = touch.clientX;
-    startY = touch.clientY;
-    isDragging = false;
+// Funzione per autenticarsi con Google
+function handleAuthClick() {
+    gapi.auth2.getAuthInstance().signIn();
 }
 
-function handleTouchMove(event, row) {
-    const touch = event.touches[0];
-    const statusCell = row.cells[2];
-    const movementX = touch.clientX - startX;
-    const movementY = touch.clientY - startY;
-
-    if (Math.abs(movementX) > 10 || Math.abs(movementY) > 10) {
-        isDragging = true;
-        disableScroll(); // Disabilita lo scroll durante il trascinamento
-    }
-
-    event.preventDefault(); // Evita lo scrolling accidentale
-
-    // Determina la direzione del movimento e mostra anteprima del colore e del testo
-    if (Math.abs(movementX) > Math.abs(movementY)) {
-        if (movementX > 30) {
-            statusCell.textContent = "Conforme";
-            statusCell.className = "status conforme";
-        } else if (movementX < -30) {
-            statusCell.textContent = "Non Conforme";
-            statusCell.className = "status non-conforme";
-        }
-    } else {
-        if (movementY < -30) {
-            statusCell.textContent = "Non Applicabile";
-            statusCell.className = "status non-applicabile";
-        } else if (movementY > 30) {
-            statusCell.textContent = "-";
-            statusCell.className = "status vuoto";
-        }
-    }
+// Funzione per disconnettersi
+function handleSignoutClick() {
+    gapi.auth2.getAuthInstance().signOut();
 }
 
-function handleTouchEnd(event, row) {
-    enableScroll(); // Riattiva lo scroll alla fine del trascinamento
-    
-    if (!isDragging) return;
-    
-    const touch = event.changedTouches[0];
-    const statusCell = row.cells[2];
-    const movementX = touch.clientX - startX;
-    const movementY = touch.clientY - startY;
-
-    // Conferma il colore e lo stato definitivo
-    if (Math.abs(movementX) > Math.abs(movementY)) {
-        if (movementX > 30) {
-            statusCell.textContent = "Conforme";
-            statusCell.className = "status conforme";
-        } else if (movementX < -30) {
-            statusCell.textContent = "Non Conforme";
-            statusCell.className = "status non-conforme";
-        }
-    } else {
-        if (movementY < -30) {
-            statusCell.textContent = "Non Applicabile";
-            statusCell.className = "status non-applicabile";
-        } else if (movementY > 30) {
-            statusCell.textContent = "-";
-            statusCell.className = "status vuoto";
-        }
-    }
+// Funzione per caricare un file da Google Drive
+function loadFile(fileId) {
+    gapi.client.drive.files.get({
+        fileId: fileId,
+        alt: 'media'
+    }).then(response => {
+        const data = response.body;
+        const workbook = XLSX.read(data, { type: 'binary' });
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
+        const json = XLSX.utils.sheet_to_json(sheet);
+        
+        console.log(json); // Per vedere l'output in console
+        popolaTabella(json);
+    }, error => {
+        console.error("Errore nel caricamento del file: ", error);
+    });
 }
 
-document.querySelectorAll("tr[draggable=true]").forEach(row => {
-    row.addEventListener("touchstart", handleTouchStart);
-    row.addEventListener("touchmove", (event) => handleTouchMove(event, row));
-    row.addEventListener("touchend", (event) => handleTouchEnd(event, row));
-});
+// Funzione per popolare la tabella HTML
+function popolaTabella(dati) {
+    const tbody = document.querySelector("table tbody");
+    tbody.innerHTML = ''; // Svuota la tabella prima di popolarla
 
-function confermaChecklist() {
-    alert("Checklist salvata con successo!");
+    dati.forEach((domanda, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${index + 1}</td>
+            <td>${domanda.Domanda}</td>
+            <td class="status vuoto">-</td>
+            <td><textarea rows="2"></textarea></td>
+        `;
+        tbody.appendChild(row);
+    });
 }
