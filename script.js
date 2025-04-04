@@ -1,6 +1,6 @@
-const SHEET_ID = "INSERISCI_ID_DEL_TUO_FOGLIO";
+const SHEET_ID = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTPQ2rb9ES4v_bsafPHwu4PbdHaanFZ9uh6vy5Mrbc9re4eKqTK19OfmzUvytSL0SNHTrmgGpax3vHE/pub?output=csv";
 const SHEET_RANGE = "A1:A";
-const API_KEY = "INSERISCI_LA_TUA_API_KEY";
+const API_KEY = "AIzaSyA5jmTA54BAziJFzNfFH9Vf3mFen8kTfjMY";
 const API_URL = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_RANGE}?alt=json&key=${API_KEY}`;
 
 let startX, startY;
