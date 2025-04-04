@@ -1,4 +1,3 @@
-/* Reset e impaginazione base */
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f4;
@@ -7,11 +6,8 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
-    min-height: 100vh;
 }
 
-/* Header */
 header {
     background-color: #007bff;
     color: white;
@@ -23,7 +19,6 @@ header {
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* Contenitore principale */
 .container {
     background: white;
     padding: 30px;
@@ -31,9 +26,9 @@ header {
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     max-width: 800px;
     width: 100%;
+    text-align: left;
 }
 
-/* Tabella checklist */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -44,51 +39,58 @@ th, td {
     border: 1px solid #ddd;
     padding: 8px;
     text-align: left;
-    vertical-align: middle;
 }
 
 th {
     background-color: #007bff;
     color: white;
-    font-weight: bold;
 }
 
-/* Stato: colori e stili */
 .status {
     text-align: center;
     font-weight: bold;
     user-select: none;
-    transition: background 0.3s ease;
     cursor: grab;
+    transition: background 0.3s ease;
 }
 
+/* Stati */
 .conforme {
-    background-color: green;
+    background-color: #28a745;
     color: white;
 }
-
 .non-conforme {
-    background-color: red;
+    background-color: #dc3545;
     color: white;
 }
-
 .non-applicabile {
-    background-color: blue;
+    background-color: #007bff;
     color: white;
 }
-
 .vuoto {
     background-color: white;
     color: black;
 }
 
-/* Disabilita selezione testo per alcune celle */
-.no-select {
-    user-select: none;
-    cursor: grab;
+/* Direzioni per animazione visiva (opzionale) */
+.status.drag-left {
+    background: linear-gradient(to left, #dc3545 30%, #fff);
+}
+.status.drag-right {
+    background: linear-gradient(to right, #28a745 30%, #fff);
+}
+.status.drag-up {
+    background: linear-gradient(to top, #007bff 30%, #fff);
+}
+.status.drag-down {
+    background: linear-gradient(to bottom, #e0e0e0 30%, #fff);
 }
 
-/* Bottone conferma */
+textarea {
+    width: 100%;
+    resize: vertical;
+}
+
 button {
     background-color: #007bff;
     color: white;
@@ -103,20 +105,4 @@ button {
 
 button:hover {
     background-color: #0056b3;
-}
-
-/* Responsive */
-@media (max-width: 600px) {
-    .container {
-        padding: 20px;
-    }
-
-    th, td {
-        font-size: 14px;
-        padding: 6px;
-    }
-
-    button {
-        width: 100%;
-    }
 }
