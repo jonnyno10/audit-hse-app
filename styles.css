@@ -1,127 +1,92 @@
 body {
-  font-family: Arial, sans-serif;
-  background-color: #f4f4f4;
-  margin: 0;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 header {
-  background-color: #007bff;
-  color: white;
-  width: 100%;
-  text-align: center;
-  padding: 20px 0;
-  font-size: 24px;
-  font-weight: bold;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    background-color: #007bff;
+    color: white;
+    width: 100%;
+    text-align: center;
+    padding: 20px 0;
+    font-size: 24px;
+    font-weight: bold;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .container {
-  background: white;
-  padding: 30px;
-  border-radius: 10px;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  max-width: 800px;
-  width: 100%;
-  text-align: left;
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    max-width: 800px;
+    width: 100%;
+    text-align: left;
 }
 
 table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
 }
 
-th,
-td {
-  border: 1px solid #ddd;
-  padding: 8px;
-  text-align: left;
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
 }
 
 th {
-  background-color: #007bff;
-  color: white;
+    background-color: #007bff;
+    color: white;
 }
 
 .status {
-  text-align: center;
-  font-weight: bold;
-  cursor: grab;
-  transition: background 0.3s ease;
+    text-align: center;
+    font-weight: bold;
+    cursor: grab;
+    transition: background 0.3s ease;
+    user-select: none;
 }
 
 .conforme {
-  background-color: green;
-  color: white;
+    background-color: green;
+    color: white;
 }
 
 .non-conforme {
-  background-color: red;
-  color: white;
+    background-color: red;
+    color: white;
 }
 
 .non-applicabile {
-  background-color: blue;
-  color: white;
+    background-color: blue;
+    color: white;
 }
 
 .vuoto {
-  background-color: white;
-  color: black;
+    background-color: white;
+    color: black;
 }
 
 button {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 10px 15px;
-  font-size: 16px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background 0.3s ease;
-  margin-top: 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    margin-top: 20px;
 }
 
 button:hover {
-  background-color: #0056b3;
-}
-
-/* Mobile responsive */
-@media (max-width: 768px) {
-  header {
-    font-size: 18px;
-    padding: 15px 0;
-  }
-
-  .container {
-    padding: 15px;
-  }
-
-  table {
-    display: block;
-    overflow-x: auto;
-    width: 100%;
-  }
-
-  th,
-  td {
-    font-size: 14px;
-    padding: 6px;
-  }
-
-  button {
-    width: 100%;
-    font-size: 14px;
-    padding: 10px;
-  }
-
-  textarea {
-    width: 100%;
-    font-size: 14px;
-  }
+    background-color: #0056b3;
 }
