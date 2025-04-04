@@ -1,15 +1,32 @@
-// CONFIGURAZIONE
 const API_KEY = "AIzaSyA5jmTA54BAziJFzNfFH9Vf3mFen8kTfjM";
 const SHEET_ID = "1CNopIVdSKPdb4L6Bp6-rF4mluabO7znPI_FuWtpGAYs";
 const SHEET_NAME = "Foglio1";
 
 const tableBody = document.querySelector("#table-body");
 
-let startX, startY;
+// Variabili trascinamento
+let startX, startY, isDragging = false;
 
-// ─────────────────────────────
-// FETCH DOMANDE DA GOOGLE SHEET
-// ─────────────────────────────
+// Stato
+function updateStatus(cell, direction) {
+    if (!cell.classList.contains("status")) return;
+
+    if (direction === "right") {
+        cell.textContent = "Conforme";
+        cell.className = "status conforme";
+    } else if (direction === "left") {
+        cell.textContent = "Non Conforme";
+        cell.className = "status non-conforme";
+    } else if (direction === "up") {
+        cell.textContent = "Non Applicabile";
+        cell.className = "status non-applicabile";
+    } else if (direction === "down") {
+        cell.textContent = "-";
+        cell.className = "status vuoto";
+    }
+}
+
+// Fetch da Google Sheets
 async function fetchQuestions() {
     try {
         const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}!A2:A1000?key=${API_KEY}`;
@@ -17,7 +34,7 @@ async function fetchQuestions() {
         const data = await response.json();
 
         if (!data.values || data.values.length === 0) {
-            console.error("Nessuna domanda trovata nel foglio Google Sheet.");
+            console.error("Nessuna domanda trovata.");
             return;
         }
 
@@ -30,9 +47,11 @@ async function fetchQuestions() {
                 tr.innerHTML = `
                     <td>${index + 1}</td>
                     <td class="domanda">${domanda}</td>
-                    <td class="status vuoto" ontouchstart="touchStart(event)" ontouchmove="touchMove(event)" ontouchend="touchEnd()" onmousedown="mouseDown(event)">-</td>
+                    <td class="status vuoto">-</td>
                     <td><textarea rows="2"></textarea></td>
                 `;
+                const statusCell = tr.querySelector(".status");
+                addDragEvents(statusCell);
                 tableBody.appendChild(tr);
             }
         });
@@ -42,95 +61,83 @@ async function fetchQuestions() {
     }
 }
 
-// ─────────────────────────────
-// TOUCH EVENTS
-// ─────────────────────────────
-function touchStart(event) {
-    const touch = event.touches[0];
+// Eventi Drag – Mobile
+function handleTouchStart(e) {
+    const touch = e.touches[0];
     startX = touch.clientX;
     startY = touch.clientY;
-    document.body.style.overflow = "hidden";
+    isDragging = false;
 }
 
-function touchMove(event) {
-    const touch = event.touches[0];
+function handleTouchMove(e) {
+    const touch = e.touches[0];
     const movementX = touch.clientX - startX;
     const movementY = touch.clientY - startY;
-    const target = event.target;
 
-    if (!target.classList.contains("status")) return;
+    if (Math.abs(movementX) > 10 || Math.abs(movementY) > 10) {
+        isDragging = true;
+        e.preventDefault();
+    }
 
-    event.preventDefault();
+    if (!isDragging) return;
+
+    const cell = e.currentTarget;
 
     if (Math.abs(movementX) > Math.abs(movementY)) {
-        if (movementX > 30) setStatus(target, "Conforme");
-        else if (movementX < -30) setStatus(target, "Non Conforme");
+        updateStatus(cell, movementX > 30 ? "right" : movementX < -30 ? "left" : null);
     } else {
-        if (movementY < -30) setStatus(target, "Non Applicabile");
-        else if (movementY > 30) setStatus(target, "-");
+        updateStatus(cell, movementY < -30 ? "up" : movementY > 30 ? "down" : null);
     }
 }
 
-function touchEnd() {
+function handleTouchEnd() {
+    isDragging = false;
     document.body.style.overflow = "auto";
 }
 
-// ─────────────────────────────
-// MOUSE EVENTS
-// ─────────────────────────────
-function mouseDown(event) {
-    if (!event.target.classList.contains("status")) return;
+// Eventi Drag – Desktop
+function handleMouseDown(e) {
+    startX = e.clientX;
+    startY = e.clientY;
+    isDragging = false;
 
-    startX = event.clientX;
-    startY = event.clientY;
+    const cell = e.currentTarget;
 
-    const mouseMoveHandler = (e) => {
-        const movementX = e.clientX - startX;
-        const movementY = e.clientY - startY;
-        const target = event.target;
+    const onMouseMove = (event) => {
+        const movementX = event.clientX - startX;
+        const movementY = event.clientY - startY;
 
-        if (Math.abs(movementX) > Math.abs(movementY)) {
-            if (movementX > 30) setStatus(target, "Conforme");
-            else if (movementX < -30) setStatus(target, "Non Conforme");
-        } else {
-            if (movementY < -30) setStatus(target, "Non Applicabile");
-            else if (movementY > 30) setStatus(target, "-");
+        if (Math.abs(movementX) > 10 || Math.abs(movementY) > 10) {
+            isDragging = true;
         }
 
-        document.removeEventListener("mousemove", mouseMoveHandler);
-        document.removeEventListener("mouseup", mouseUpHandler);
+        if (!isDragging) return;
+
+        if (Math.abs(movementX) > Math.abs(movementY)) {
+            updateStatus(cell, movementX > 30 ? "right" : movementX < -30 ? "left" : null);
+        } else {
+            updateStatus(cell, movementY < -30 ? "up" : movementY > 30 ? "down" : null);
+        }
     };
 
-    const mouseUpHandler = () => {
-        document.removeEventListener("mousemove", mouseMoveHandler);
-        document.removeEventListener("mouseup", mouseUpHandler);
+    const onMouseUp = () => {
+        document.removeEventListener("mousemove", onMouseMove);
+        document.removeEventListener("mouseup", onMouseUp);
     };
 
-    document.addEventListener("mousemove", mouseMoveHandler);
-    document.addEventListener("mouseup", mouseUpHandler);
+    document.addEventListener("mousemove", onMouseMove);
+    document.addEventListener("mouseup", onMouseUp);
 }
 
-// ─────────────────────────────
-// STATO: AGGIORNA VISUALMENTE
-// ─────────────────────────────
-function setStatus(cell, status) {
-    const statusMap = {
-        "Conforme": "status conforme",
-        "Non Conforme": "status non-conforme",
-        "Non Applicabile": "status non-applicabile",
-        "-": "status vuoto"
-    };
+// Applica eventi alla cella
+function addDragEvents(cell) {
+    cell.classList.add("no-select");
+    cell.addEventListener("touchstart", handleTouchStart);
+    cell.addEventListener("touchmove", handleTouchMove);
+    cell.addEventListener("touchend", handleTouchEnd);
 
-    cell.textContent = status;
-    cell.className = statusMap[status] || "status vuoto";
+    cell.addEventListener("mousedown", handleMouseDown);
 }
 
-// ─────────────────────────────
-// CONFERMA CHECKLIST
-// ─────────────────────────────
-function confermaChecklist() {
-    alert("Checklist salvata con successo!");
-}
-
-// Avvia caricamento domande al load
+// Avvia
 window.onload = fetchQuestions;
