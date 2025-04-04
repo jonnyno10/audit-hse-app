@@ -1,4 +1,4 @@
-const SHEET_ID = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTPQ2rb9ES4v_bsafPHwu4PbdHaanFZ9uh6vy5Mrbc9re4eKqTK19OfmzUvytSL0SNHTrmgGpax3vHE/pubhtml";
+const SHEET_ID = "2PACX-1vTPQ2rb9ES4v_bsafPHwu4PbdHaanFZ9uh6vy5Mrbc9re4eKqTK19OfmzUvytSL0SNHTrmgGpax3vHE";
 const API_KEY = "AIzaSyA5jmTA54BAziJFzNfFH9Vf3mFen8kTfjMY";
 const SHEET_NAME = "Foglio1"; // Cambia se il foglio ha un nome diverso
 
