@@ -1,46 +1,50 @@
+/* Stili generali */
 body {
     font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
     margin: 0;
     padding: 0;
 }
 
 header {
-    background-color: #007acc;
+    background-color: #2a6ebb;
     color: white;
-    padding: 1em;
+    padding: 1rem;
     text-align: center;
-    font-size: 1.5em;
+    font-size: 1.5rem;
 }
 
 .container {
-    padding: 1em;
+    padding: 1rem;
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
-    margin-bottom: 1em;
-    background-color: white;
-    border-radius: 8px;
-    overflow: hidden;
+    margin-bottom: 1rem;
 }
 
-table th, table td {
-    padding: 0.75em;
+th, td {
+    border: 1px solid #ccc;
+    padding: 0.5rem;
     text-align: left;
-    border-bottom: 1px solid #ccc;
+    vertical-align: top;
+}
+
+th {
+    background-color: #f0f0f0;
 }
 
 .status {
-    text-align: center;
-    cursor: grab;
-    user-select: none;
     font-weight: bold;
+    cursor: grab;
+    text-align: center;
+    user-select: none;
 }
 
+/* Stili per gli stati */
 .status.vuoto {
-    background-color: #f0f0f0;
+    background-color: white;
+    color: #888;
 }
 
 .status.conforme {
@@ -54,25 +58,57 @@ table th, table td {
 }
 
 .status.non-applicabile {
-    background-color: #ffe082;
-    color: #ef6c00;
+    background-color: #eeeeee;
+    color: #616161;
 }
 
+/* Anteprima di stato mentre si trascina */
+.status.preview {
+    opacity: 0.6;
+    transition: background-color 0.3s;
+}
+
+/* Note */
 textarea {
     width: 100%;
     resize: vertical;
 }
 
-button {
-    padding: 0.75em 1.5em;
-    font-size: 1em;
-    background-color: #007acc;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+/* Mobile responsive */
+@media (max-width: 768px) {
+    table, thead, tbody, th, td, tr {
+        display: block;
+    }
+
+    thead tr {
+        display: none;
+    }
+
+    tr {
+        margin-bottom: 1rem;
+    }
+
+    td {
+        padding-left: 50%;
+        position: relative;
+    }
+
+    td::before {
+        position: absolute;
+        left: 0.5rem;
+        width: 45%;
+        white-space: nowrap;
+        font-weight: bold;
+    }
+
+    td:nth-child(1)::before { content: "#"; }
+    td:nth-child(2)::before { content: "Domanda"; }
+    td:nth-child(3)::before { content: "Stato"; }
+    td:nth-child(4)::before { content: "Note"; }
 }
 
-button:hover {
-    background-color: #005f99;
+/* Blocca lo scroll del body durante lo swipe */
+body.no-scroll {
+    overflow: hidden;
+    touch-action: none;
 }
