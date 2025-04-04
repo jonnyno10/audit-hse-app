@@ -26,7 +26,13 @@ async function fetchQuestions() {
                 tr.innerHTML = `
                     <td>${index + 1}</td>
                     <td class="domanda">${domanda}</td>
-                    <td class="status vuoto" ontouchstart="touchStart(event)" ontouchmove="touchMove(event, this)" ontouchend="touchEnd(event, this)" onmousedown="mouseDown(event, this)">-</td>
+                    <td class="status vuoto" 
+                        ontouchstart="touchStart(event)" 
+                        ontouchmove="touchMove(event, this)" 
+                        ontouchend="touchEnd(event, this)" 
+                        onmousedown="mouseDown(event, this)">
+                        -
+                    </td>
                     <td><textarea rows="2"></textarea></td>
                 `;
                 tableBody.appendChild(tr);
@@ -38,17 +44,21 @@ async function fetchQuestions() {
     }
 }
 
-// Stato iniziale delle coordinate
+// Coordinate iniziali per calcolo direzione swipe
 let startX = 0;
 let startY = 0;
 
-// TOUCH EVENTI MOBILE
+/* EVENTI MOBILE */
+
+// Salva posizione iniziale e blocca scroll
 function touchStart(event) {
     const touch = event.touches[0];
     startX = touch.clientX;
     startY = touch.clientY;
+    document.body.classList.add("no-scroll"); // blocca lo scroll
 }
 
+// Calcola direzione swipe e applica stato
 function touchMove(event, cell) {
     const touch = event.touches[0];
     const dx = touch.clientX - startX;
@@ -57,11 +67,15 @@ function touchMove(event, cell) {
     applySwipeLogic(dx, dy, cell);
 }
 
+// Ripristina stile e scroll
 function touchEnd(event, cell) {
+    document.body.classList.remove("no-scroll"); // riattiva scroll
     resetCellBackground(cell);
 }
 
-// MOUSE EVENTI DESKTOP
+/* EVENTI DESKTOP */
+
+// Simula swipe con mouse (desktop)
 function mouseDown(event, cell) {
     event.preventDefault();
     startX = event.clientX;
@@ -83,38 +97,51 @@ function mouseDown(event, cell) {
     document.addEventListener("mouseup", upHandler);
 }
 
+/* GESTIONE STATO */
+
 // Cambia lo stato in base al movimento
 function applySwipeLogic(dx, dy, cell) {
     if (Math.abs(dx) > Math.abs(dy)) {
+        // Swipe orizzontale
         if (dx > 30) {
             setStatus(cell, "Conforme", "conforme");
         } else if (dx < -30) {
             setStatus(cell, "Non Conforme", "non-conforme");
+        } else {
+            previewBackground(cell, "conforme");
         }
     } else {
+        // Swipe verticale
         if (dy < -30) {
             setStatus(cell, "Non Applicabile", "non-applicabile");
         } else if (dy > 30) {
             setStatus(cell, "-", "vuoto");
+        } else {
+            previewBackground(cell, "non-applicabile");
         }
     }
 }
 
-// Imposta il testo e la classe della cella
+// Imposta lo stato definitivo nella cella
 function setStatus(cell, text, statusClass) {
     cell.textContent = text;
     cell.className = `status ${statusClass}`;
 }
 
-// Ripristina lo sfondo alla fine del trascinamento
+// Mostra anteprima dello stato durante swipe
+function previewBackground(cell, statusClass) {
+    cell.className = `status ${statusClass} preview`;
+}
+
+// Rimuove l'effetto preview al termine dello swipe
 function resetCellBackground(cell) {
     cell.classList.remove("preview");
 }
 
-// Bottone conferma
+// Pulsante di conferma checklist
 function confermaChecklist() {
     alert("Checklist salvata con successo!");
 }
 
-// Avvia il caricamento al load
+// Avvio iniziale caricamento domande
 window.onload = fetchQuestions;
