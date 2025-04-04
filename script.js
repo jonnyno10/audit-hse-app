@@ -1,5 +1,6 @@
 let startX, startY;
 let isDragging = false;
+let activeRow = null;
 
 function disableScroll() {
   document.body.style.overflow = "hidden";
@@ -9,134 +10,98 @@ function enableScroll() {
   document.body.style.overflow = "auto";
 }
 
-function handleTouchStart(event) {
-  const touch = event.touches[0];
-  startX = touch.clientX;
-  startY = touch.clientY;
+function getStatusByMovement(dx, dy) {
+  if (Math.abs(dx) > Math.abs(dy)) {
+    if (dx > 30) return { text: "Conforme", className: "status conforme" };
+    if (dx < -30) return { text: "Non Conforme", className: "status non-conforme" };
+  } else {
+    if (dy < -30) return { text: "Non Applicabile", className: "status non-applicabile" };
+    if (dy > 30) return { text: "-", className: "status vuoto" };
+  }
+  return null;
+}
+
+function applyStatus(row, status) {
+  const cell = row.cells[2];
+  if (status) {
+    cell.textContent = status.text;
+    cell.className = status.className;
+  }
+}
+
+function handleStart(x, y, row) {
+  startX = x;
+  startY = y;
   isDragging = false;
+  activeRow = row;
+  disableScroll();
 }
 
-function handleTouchMove(event, row) {
-  const touch = event.touches[0];
-  const statusCell = row.cells[2];
-  const movementX = touch.clientX - startX;
-  const movementY = touch.clientY - startY;
+function handleMove(x, y) {
+  if (!activeRow) return;
 
-  if (Math.abs(movementX) > 10 || Math.abs(movementY) > 10) {
+  const dx = x - startX;
+  const dy = y - startY;
+
+  if (Math.abs(dx) > 10 || Math.abs(dy) > 10) {
     isDragging = true;
-    disableScroll();
   }
 
-  event.preventDefault();
-
-  if (Math.abs(movementX) > Math.abs(movementY)) {
-    if (movementX > 30) {
-      statusCell.textContent = "Conforme";
-      statusCell.className = "status conforme";
-    } else if (movementX < -30) {
-      statusCell.textContent = "Non Conforme";
-      statusCell.className = "status non-conforme";
-    }
-  } else {
-    if (movementY < -30) {
-      statusCell.textContent = "Non Applicabile";
-      statusCell.className = "status non-applicabile";
-    } else if (movementY > 30) {
-      statusCell.textContent = "-";
-      statusCell.className = "status vuoto";
-    }
-  }
+  const previewStatus = getStatusByMovement(dx, dy);
+  applyStatus(activeRow, previewStatus);
 }
 
-function handleTouchEnd(event, row) {
+function handleEnd(x, y) {
+  if (!activeRow || !isDragging) {
+    enableScroll();
+    activeRow = null;
+    return;
+  }
+
+  const dx = x - startX;
+  const dy = y - startY;
+
+  const finalStatus = getStatusByMovement(dx, dy);
+  applyStatus(activeRow, finalStatus);
+
   enableScroll();
-  if (!isDragging) return;
-
-  const touch = event.changedTouches[0];
-  const statusCell = row.cells[2];
-  const movementX = touch.clientX - startX;
-  const movementY = touch.clientY - startY;
-
-  if (Math.abs(movementX) > Math.abs(movementY)) {
-    if (movementX > 30) {
-      statusCell.textContent = "Conforme";
-      statusCell.className = "status conforme";
-    } else if (movementX < -30) {
-      statusCell.textContent = "Non Conforme";
-      statusCell.className = "status non-conforme";
-    }
-  } else {
-    if (movementY < -30) {
-      statusCell.textContent = "Non Applicabile";
-      statusCell.className = "status non-applicabile";
-    } else if (movementY > 30) {
-      statusCell.textContent = "-";
-      statusCell.className = "status vuoto";
-    }
-  }
+  activeRow = null;
 }
 
-let mouseDown = false;
-let mouseStartX, mouseStartY;
-let activeRow = null;
-
+// Event binding
 document.querySelectorAll("tr[draggable=true]").forEach(row => {
-  // Touch
-  row.addEventListener("touchstart", handleTouchStart);
-  row.addEventListener("touchmove", (e) => handleTouchMove(e, row));
-  row.addEventListener("touchend", (e) => handleTouchEnd(e, row));
+  // Touch events
+  row.addEventListener("touchstart", (e) => {
+    const t = e.touches[0];
+    handleStart(t.clientX, t.clientY, row);
+  });
 
-  // Mouse
+  row.addEventListener("touchmove", (e) => {
+    const t = e.touches[0];
+    handleMove(t.clientX, t.clientY);
+    e.preventDefault(); // Evita scroll
+  });
+
+  row.addEventListener("touchend", (e) => {
+    const t = e.changedTouches[0];
+    handleEnd(t.clientX, t.clientY);
+  });
+
+  // Mouse events
   row.addEventListener("mousedown", (e) => {
-    mouseDown = true;
-    mouseStartX = e.clientX;
-    mouseStartY = e.clientY;
-    activeRow = row;
-    disableScroll();
+    handleStart(e.clientX, e.clientY, row);
   });
 
   row.addEventListener("mousemove", (e) => {
-    if (!mouseDown || !activeRow) return;
-
-    const movementX = e.clientX - mouseStartX;
-    const movementY = e.clientY - mouseStartY;
-    const statusCell = activeRow.cells[2];
-
-    if (Math.abs(movementX) > 10 || Math.abs(movementY) > 10) {
-      isDragging = true;
-    }
-
-    if (Math.abs(movementX) > Math.abs(movementY)) {
-      if (movementX > 30) {
-        statusCell.textContent = "Conforme";
-        statusCell.className = "status conforme";
-      } else if (movementX < -30) {
-        statusCell.textContent = "Non Conforme";
-        statusCell.className = "status non-conforme";
-      }
-    } else {
-      if (movementY < -30) {
-        statusCell.textContent = "Non Applicabile";
-        statusCell.className = "status non-applicabile";
-      } else if (movementY > 30) {
-        statusCell.textContent = "-";
-        statusCell.className = "status vuoto";
-      }
-    }
+    if (activeRow) handleMove(e.clientX, e.clientY);
   });
 
-  row.addEventListener("mouseup", () => {
-    mouseDown = false;
-    activeRow = null;
-    enableScroll();
+  row.addEventListener("mouseup", (e) => {
+    handleEnd(e.clientX, e.clientY);
   });
 
-  row.addEventListener("mouseleave", () => {
-    if (mouseDown) {
-      mouseDown = false;
-      activeRow = null;
-      enableScroll();
-    }
+  row.addEventListener("mouseleave", (e) => {
+    if (activeRow) handleEnd(e.clientX, e.clientY);
   });
 });
 
