@@ -1,31 +1,29 @@
+
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Audit Documentale Sicurezza</title>
-  <link rel="stylesheet" href="styles.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audit Documentale Sicurezza</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>Audit Documentale Sicurezza</header>
-  <div class="container">
-    <h2>Checklist Audit</h2>
-    <div class="table-wrapper">
-      <table>
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Domanda</th>
-            <th>Stato</th>
-          </tr>
-        </thead>
-        <tbody id="table-body">
-          <!-- Le domande verranno caricate dinamicamente -->
-        </tbody>
-      </table>
+    <div class="container">
+        <h1>Audit Documentale Sicurezza</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Domanda</th>
+                    <th>Stato</th>
+                </tr>
+            </thead>
+            <tbody id="table-body">
+                <!-- Domande caricate dinamicamente -->
+            </tbody>
+        </table>
+        <button onclick="confermaChecklist()">Conferma</button>
     </div>
-    <button onclick="confermaChecklist()">Conferma</button>
-  </div>
-  <script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
