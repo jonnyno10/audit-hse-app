@@ -1,76 +1,171 @@
+const SHEET_ID = "INSERISCI_ID_DEL_TUO_FOGLIO";
+const SHEET_RANGE = "A1:A";
+const API_KEY = "INSERISCI_LA_TUA_API_KEY";
+const API_URL = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_RANGE}?alt=json&key=${API_KEY}`;
+
 let startX, startY;
 let isDragging = false;
 
-function updateStatusByDirection(row, dx, dy) {
-    const statusCell = row.querySelector(".status");
+function disableScroll() {
+  document.body.style.overflow = "hidden";
+}
 
-    if (Math.abs(dx) > Math.abs(dy)) {
-        // Movimento orizzontale
-        if (dx > 30) {
-            statusCell.textContent = "Conforme";
-            statusCell.className = "status conforme";
-        } else if (dx < -30) {
-            statusCell.textContent = "Non Conforme";
-            statusCell.className = "status non-conforme";
-        }
-    } else {
-        // Movimento verticale
-        if (dy < -30) {
-            statusCell.textContent = "Non Applicabile";
-            statusCell.className = "status non-applicabile";
-        } else if (dy > 30) {
-            statusCell.textContent = "-";
-            statusCell.className = "status vuoto";
-        }
+function enableScroll() {
+  document.body.style.overflow = "auto";
+}
+
+function handleTouchStart(event) {
+  const touch = event.touches[0];
+  startX = touch.clientX;
+  startY = touch.clientY;
+  isDragging = false;
+}
+
+function handleTouchMove(event, row) {
+  const touch = event.touches[0];
+  const statusCell = row.cells[2];
+  const movementX = touch.clientX - startX;
+  const movementY = touch.clientY - startY;
+
+  if (Math.abs(movementX) > 10 || Math.abs(movementY) > 10) {
+    isDragging = true;
+    disableScroll();
+  }
+
+  event.preventDefault();
+
+  if (Math.abs(movementX) > Math.abs(movementY)) {
+    if (movementX > 30) {
+      statusCell.textContent = "Conforme";
+      statusCell.className = "status conforme";
+    } else if (movementX < -30) {
+      statusCell.textContent = "Non Conforme";
+      statusCell.className = "status non-conforme";
     }
+  } else {
+    if (movementY < -30) {
+      statusCell.textContent = "Non Applicabile";
+      statusCell.className = "status non-applicabile";
+    } else if (movementY > 30) {
+      statusCell.textContent = "-";
+      statusCell.className = "status vuoto";
+    }
+  }
 }
 
-function attachListeners(row) {
-    let active = false;
+function handleTouchEnd(event, row) {
+  enableScroll();
 
-    // Mouse
-    row.addEventListener("mousedown", e => {
-        startX = e.clientX;
-        startY = e.clientY;
-        active = true;
-    });
+  if (!isDragging) return;
 
-    document.addEventListener("mousemove", e => {
-        if (!active) return;
-        const dx = e.clientX - startX;
-        const dy = e.clientY - startY;
-        updateStatusByDirection(row, dx, dy);
-    });
+  const touch = event.changedTouches[0];
+  const statusCell = row.cells[2];
+  const movementX = touch.clientX - startX;
+  const movementY = touch.clientY - startY;
 
-    document.addEventListener("mouseup", () => {
-        active = false;
-    });
-
-    // Touch
-    row.addEventListener("touchstart", e => {
-        const touch = e.touches[0];
-        startX = touch.clientX;
-        startY = touch.clientY;
-        active = true;
-    });
-
-    row.addEventListener("touchmove", e => {
-        if (!active) return;
-        const touch = e.touches[0];
-        const dx = touch.clientX - startX;
-        const dy = touch.clientY - startY;
-        updateStatusByDirection(row, dx, dy);
-    });
-
-    row.addEventListener("touchend", () => {
-        active = false;
-    });
+  if (Math.abs(movementX) > Math.abs(movementY)) {
+    if (movementX > 30) {
+      statusCell.textContent = "Conforme";
+      statusCell.className = "status conforme";
+    } else if (movementX < -30) {
+      statusCell.textContent = "Non Conforme";
+      statusCell.className = "status non-conforme";
+    }
+  } else {
+    if (movementY < -30) {
+      statusCell.textContent = "Non Applicabile";
+      statusCell.className = "status non-applicabile";
+    } else if (movementY > 30) {
+      statusCell.textContent = "-";
+      statusCell.className = "status vuoto";
+    }
+  }
 }
 
-document.querySelectorAll(".draggable-row").forEach(row => {
-    attachListeners(row);
-});
+function handleMouseDown(event) {
+  startX = event.clientX;
+  startY = event.clientY;
+  isDragging = false;
+}
+
+function handleMouseMove(event, row) {
+  if (event.buttons !== 1) return;
+
+  const movementX = event.clientX - startX;
+  const movementY = event.clientY - startY;
+  const statusCell = row.cells[2];
+
+  if (Math.abs(movementX) > 5 || Math.abs(movementY) > 5) {
+    isDragging = true;
+  }
+
+  if (Math.abs(movementX) > Math.abs(movementY)) {
+    if (movementX > 30) {
+      statusCell.textContent = "Conforme";
+      statusCell.className = "status conforme";
+    } else if (movementX < -30) {
+      statusCell.textContent = "Non Conforme";
+      statusCell.className = "status non-conforme";
+    }
+  } else {
+    if (movementY < -30) {
+      statusCell.textContent = "Non Applicabile";
+      statusCell.className = "status non-applicabile";
+    } else if (movementY > 30) {
+      statusCell.textContent = "-";
+      statusCell.className = "status vuoto";
+    }
+  }
+}
+
+function handleMouseUp(event, row) {
+  // Il cambiamento è già visualizzato durante il movimento
+}
+
+function inizializzaTrascinamento() {
+  document.querySelectorAll("tr[draggable=true]").forEach(row => {
+    // Touch events
+    row.addEventListener("touchstart", handleTouchStart);
+    row.addEventListener("touchmove", (event) => handleTouchMove(event, row));
+    row.addEventListener("touchend", (event) => handleTouchEnd(event, row));
+
+    // Mouse events
+    row.addEventListener("mousedown", handleMouseDown);
+    row.addEventListener("mousemove", (event) => handleMouseMove(event, row));
+    row.addEventListener("mouseup", (event) => handleMouseUp(event, row));
+  });
+}
 
 function confermaChecklist() {
-    alert("Checklist salvata con successo!");
+  alert("Checklist salvata con successo!");
 }
+
+async function caricaDomande() {
+  try {
+    const response = await fetch(API_URL);
+    const data = await response.json();
+    const domande = data.values;
+    const table = document.getElementById("checklist-table");
+
+    domande.forEach((riga, index) => {
+      if (!riga[0] || riga[0].toLowerCase().includes("domanda")) return;
+
+      const row = table.insertRow();
+      row.setAttribute("draggable", "true");
+
+      row.innerHTML = `
+        <td>${index}</td>
+        <td class="domanda" style="user-select: none;">${riga[0]}</td>
+        <td class="status vuoto">-</td>
+        <td><textarea rows="2"></textarea></td>
+      `;
+    });
+
+    inizializzaTrascinamento();
+  } catch (error) {
+    console.error("Errore durante il caricamento delle domande:", error);
+  }
+}
+
+// Avvio caricamento al load
+caricaDomande();
