@@ -1,40 +1,32 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Audit Documentale Sicurezza</title>
-
-    <!-- Collegamento al foglio di stile -->
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-    <!-- Intestazione principale -->
     <header>Audit Documentale Sicurezza</header>
-
     <div class="container">
         <h2>Checklist Audit</h2>
-
-        <!-- Tabella con intestazioni -->
-        <table>
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Domanda</th>
-                    <th>Stato</th>
-                    <th>Note</th>
-                </tr>
-            </thead>
-            <tbody id="table-body">
-                <!-- Le domande verranno caricate dinamicamente via JS -->
-            </tbody>
-        </table>
-
-        <!-- Pulsante per confermare la checklist -->
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Domanda</th>
+                        <th>Stato</th>
+                        <th>Note</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                    <!-- Le domande verranno caricate dinamicamente qui -->
+                </tbody>
+            </table>
+        </div>
         <button onclick="confermaChecklist()">Conferma</button>
     </div>
-
-    <!-- Collegamento al file JavaScript -->
     <script src="script.js"></script>
 </body>
 </html>

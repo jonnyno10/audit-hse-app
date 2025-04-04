@@ -1,12 +1,13 @@
-/* Stili generali */
+/* Stile base */
 body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
+    background: #f4f4f4;
 }
 
 header {
-    background-color: #2a6ebb;
+    background-color: #007bff;
     color: white;
     padding: 1rem;
     text-align: center;
@@ -17,10 +18,21 @@ header {
     padding: 1rem;
 }
 
+h2 {
+    margin-bottom: 1rem;
+}
+
+/* Wrapper per overflow tabella su mobile */
+.table-wrapper {
+    overflow-x: auto;
+    margin-bottom: 1rem;
+}
+
 table {
     width: 100%;
     border-collapse: collapse;
-    margin-bottom: 1rem;
+    background-color: white;
+    min-width: 600px;
 }
 
 th, td {
@@ -30,85 +42,56 @@ th, td {
     vertical-align: top;
 }
 
-th {
-    background-color: #f0f0f0;
-}
-
 .status {
     font-weight: bold;
     cursor: grab;
-    text-align: center;
     user-select: none;
 }
 
-/* Stili per gli stati */
-.status.vuoto {
-    background-color: white;
-    color: #888;
+/* Stati */
+.vuoto {
+    background-color: #eee;
+    color: #666;
 }
 
-.status.conforme {
+.conforme {
     background-color: #c8e6c9;
-    color: #2e7d32;
+    color: #256029;
 }
 
-.status.non-conforme {
+.non-conforme {
     background-color: #ffcdd2;
     color: #c62828;
 }
 
-.status.non-applicabile {
-    background-color: #eeeeee;
-    color: #616161;
+.non-applicabile {
+    background-color: #ffe0b2;
+    color: #ef6c00;
 }
 
-/* Anteprima di stato mentre si trascina */
-.status.preview {
-    opacity: 0.6;
-    transition: background-color 0.3s;
+/* Anteprima trascinamento */
+.preview {
+    opacity: 0.7;
 }
 
-/* Note */
-textarea {
-    width: 100%;
-    resize: vertical;
-}
-
-/* Mobile responsive */
-@media (max-width: 768px) {
-    table, thead, tbody, th, td, tr {
-        display: block;
-    }
-
-    thead tr {
-        display: none;
-    }
-
-    tr {
-        margin-bottom: 1rem;
-    }
-
-    td {
-        padding-left: 50%;
-        position: relative;
-    }
-
-    td::before {
-        position: absolute;
-        left: 0.5rem;
-        width: 45%;
-        white-space: nowrap;
-        font-weight: bold;
-    }
-
-    td:nth-child(1)::before { content: "#"; }
-    td:nth-child(2)::before { content: "Domanda"; }
-    td:nth-child(3)::before { content: "Stato"; }
-    td:nth-child(4)::before { content: "Note"; }
-}
-
-/* Blocca lo scroll del body durante lo swipe */
+/* Blocca scroll durante drag */
 body.no-scroll {
     overflow: hidden;
     touch-action: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    header {
+        font-size: 1.2rem;
+    }
+
+    table {
+        font-size: 0.9rem;
+    }
+
+    td textarea {
+        width: 100%;
+        box-sizing: border-box;
+    }
 }
