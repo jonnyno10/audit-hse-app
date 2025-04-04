@@ -1,20 +1,11 @@
-// ─────────────────────────────────────
-// CONFIGURAZIONE GOOGLE SHEET
-// ─────────────────────────────────────
+// CONFIGURAZIONE: Inserisci la tua API key e ID del foglio
 const API_KEY = "AIzaSyA5jmTA54BAziJFzNfFH9Vf3mFen8kTfjM";
 const SHEET_ID = "1CNopIVdSKPdb4L6Bp6-rF4mluabO7znPI_FuWtpGAYs";
 const SHEET_NAME = "Foglio1";
 
-const tableBody = document.querySelector("#checklist tbody");
+const tableBody = document.querySelector("#table-body");
 
-// ─────────────────────────────────────
-// VARIABILI GLOBALI PER IL TRASCINAMENTO
-// ─────────────────────────────────────
-let startX, startY, isDragging = false;
-
-// ─────────────────────────────────────
-// FUNZIONE PER RECUPERARE LE DOMANDE
-// ─────────────────────────────────────
+// Funzione per caricare le domande dal Google Sheet
 async function fetchQuestions() {
     try {
         const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}!A2:A1000?key=${API_KEY}`;
@@ -22,32 +13,22 @@ async function fetchQuestions() {
         const data = await response.json();
 
         if (!data.values || data.values.length === 0) {
-            console.error("Nessuna domanda trovata nel foglio Google Sheet.");
+            console.error("Nessuna domanda trovata.");
             return;
         }
 
-        // Pulisce la tabella prima di aggiungere nuove righe
         tableBody.innerHTML = "";
 
-        // Per ogni domanda, crea una nuova riga con struttura personalizzata
         data.values.forEach((row, index) => {
             const domanda = row[0];
             if (domanda) {
                 const tr = document.createElement("tr");
-
                 tr.innerHTML = `
                     <td>${index + 1}</td>
                     <td class="domanda">${domanda}</td>
-                    <td>
-                        <div class="status vuoto draggable-status" title="Trascina per cambiare stato">-</div>
-                    </td>
+                    <td class="status vuoto" ontouchstart="touchStart(event)" ontouchmove="touchMove(event, this)" ontouchend="touchEnd(event, this)" onmousedown="mouseDown(event, this)">-</td>
                     <td><textarea rows="2"></textarea></td>
                 `;
-
-                // Applica eventi di trascinamento alla sola cella status
-                const statusCell = tr.querySelector(".draggable-status");
-                addDragEvents(statusCell);
-
                 tableBody.appendChild(tr);
             }
         });
@@ -57,109 +38,92 @@ async function fetchQuestions() {
     }
 }
 
-// ─────────────────────────────────────
-// EVENTI TOUCH (per dispositivi mobili)
-// ─────────────────────────────────────
-function handleTouchStart(event) {
+// Stato iniziale delle coordinate
+let startX = 0;
+let startY = 0;
+
+// TOUCH EVENTI MOBILE
+function touchStart(event) {
     const touch = event.touches[0];
     startX = touch.clientX;
     startY = touch.clientY;
-    isDragging = false;
 }
 
-function handleTouchMove(event) {
+function touchMove(event, cell) {
     const touch = event.touches[0];
-    const element = event.currentTarget;
-    const movementX = touch.clientX - startX;
-    const movementY = touch.clientY - startY;
+    const dx = touch.clientX - startX;
+    const dy = touch.clientY - startY;
 
-    if (Math.abs(movementX) > 10 || Math.abs(movementY) > 10) {
-        isDragging = true;
-        document.body.style.overflow = "hidden";
-    }
+    applySwipeLogic(dx, dy, cell);
+}
 
+function touchEnd(event, cell) {
+    resetCellBackground(cell);
+}
+
+// MOUSE EVENTI DESKTOP
+function mouseDown(event, cell) {
     event.preventDefault();
-
-    updateStatusBasedOnMovement(element, movementX, movementY);
-}
-
-function handleTouchEnd() {
-    document.body.style.overflow = "auto";
-}
-
-// ─────────────────────────────────────
-// EVENTI MOUSE (per desktop)
-// ─────────────────────────────────────
-function handleMouseDown(event) {
     startX = event.clientX;
     startY = event.clientY;
-    isDragging = false;
 
-    const element = event.currentTarget;
-    element.classList.add("dragging");
+    const moveHandler = (e) => {
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        applySwipeLogic(dx, dy, cell);
+    };
 
-    function move(e) {
-        const movementX = e.clientX - startX;
-        const movementY = e.clientY - startY;
+    const upHandler = () => {
+        document.removeEventListener("mousemove", moveHandler);
+        document.removeEventListener("mouseup", upHandler);
+        resetCellBackground(cell);
+    };
 
-        isDragging = true;
-        updateStatusBasedOnMovement(element, movementX, movementY);
-    }
-
-    function up() {
-        document.removeEventListener("mousemove", move);
-        document.removeEventListener("mouseup", up);
-        element.classList.remove("dragging");
-    }
-
-    document.addEventListener("mousemove", move);
-    document.addEventListener("mouseup", up);
+    document.addEventListener("mousemove", moveHandler);
+    document.addEventListener("mouseup", upHandler);
 }
 
-// ─────────────────────────────────────
-// LOGICA CAMBIO STATO
-// ─────────────────────────────────────
-function updateStatusBasedOnMovement(cell, dx, dy) {
+// Cambia lo stato in base al movimento
+function applySwipeLogic(dx, dy, cell) {
     if (Math.abs(dx) > Math.abs(dy)) {
         if (dx > 30) {
-            cell.textContent = "Conforme";
-            cell.className = "status conforme draggable-status";
+            setStatus(cell, "Conforme", "conforme");
         } else if (dx < -30) {
-            cell.textContent = "Non Conforme";
-            cell.className = "status non-conforme draggable-status";
+            setStatus(cell, "Non Conforme", "non-conforme");
+        } else {
+            previewBackground(cell, "conforme");
         }
     } else {
         if (dy < -30) {
-            cell.textContent = "Non Applicabile";
-            cell.className = "status non-applicabile draggable-status";
+            setStatus(cell, "Non Applicabile", "non-applicabile");
         } else if (dy > 30) {
-            cell.textContent = "-";
-            cell.className = "status vuoto draggable-status";
+            setStatus(cell, "-", "vuoto");
+        } else {
+            previewBackground(cell, "non-applicabile");
         }
     }
 }
 
-// ─────────────────────────────────────
-// AGGIUNTA EVENTI A UNA CELLA STATO
-// ─────────────────────────────────────
-function addDragEvents(element) {
-    // Mobile
-    element.addEventListener("touchstart", handleTouchStart);
-    element.addEventListener("touchmove", handleTouchMove);
-    element.addEventListener("touchend", handleTouchEnd);
-
-    // Desktop
-    element.addEventListener("mousedown", handleMouseDown);
+// Imposta il testo e la classe della cella
+function setStatus(cell, text, statusClass) {
+    cell.textContent = text;
+    cell.className = `status ${statusClass}`;
 }
 
-// ─────────────────────────────────────
-// CONFERMA CHECKLIST (placeholder)
-// ─────────────────────────────────────
+// Mostra anteprima animata sfondo durante swipe
+function previewBackground(cell, statusClass) {
+    cell.className = `status ${statusClass} preview`;
+}
+
+// Ripristina lo sfondo alla fine del trascinamento
+function resetCellBackground(cell) {
+    cell.classList.remove("preview");
+}
+
+// Bottone conferma
 function confermaChecklist() {
     alert("Checklist salvata con successo!");
 }
 
-// ─────────────────────────────────────
-// AVVIO ALLA PARTENZA DELLA PAGINA
-// ─────────────────────────────────────
+// Avvia il caricamento al load
 window.onload = fetchQuestions;
