@@ -1,89 +1,64 @@
 body {
     font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
+    background-color: #f2f2f2;
     margin: 0;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    padding: 0;
 }
 
 header {
-    background-color: #007bff;
+    background-color: #2c3e50;
     color: white;
-    width: 100%;
+    padding: 1em;
     text-align: center;
-    padding: 20px 0;
-    font-size: 24px;
-    font-weight: bold;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    font-size: 1.5em;
 }
 
 .container {
-    background: white;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    max-width: 800px;
-    width: 100%;
-    text-align: left;
+    padding: 1em;
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 20px;
+    margin-top: 1em;
+    background-color: white;
+}
+
+table, th, td {
+    border: 1px solid #ccc;
 }
 
 th, td {
-    border: 1px solid #ddd;
-    padding: 8px;
+    padding: 0.5em;
     text-align: left;
-}
-
-th {
-    background-color: #007bff;
-    color: white;
+    vertical-align: middle;
 }
 
 .status {
+    cursor: grab;
+    transition: background-color 0.3s;
     text-align: center;
     font-weight: bold;
-    user-select: none;
-    cursor: grab;
-    transition: background 0.3s ease;
 }
 
-/* Stati */
-.conforme {
-    background-color: #28a745;
-    color: white;
-}
-.non-conforme {
-    background-color: #dc3545;
-    color: white;
-}
-.non-applicabile {
-    background-color: #007bff;
-    color: white;
-}
-.vuoto {
-    background-color: white;
-    color: black;
+.status.vuoto {
+    background-color: #e0e0e0;
 }
 
-/* Direzioni per animazione visiva (opzionale) */
-.status.drag-left {
-    background: linear-gradient(to left, #dc3545 30%, #fff);
+.status.conforme {
+    background-color: #b6e7a7;
 }
-.status.drag-right {
-    background: linear-gradient(to right, #28a745 30%, #fff);
+
+.status.non-conforme {
+    background-color: #f7a7a3;
 }
-.status.drag-up {
-    background: linear-gradient(to top, #007bff 30%, #fff);
+
+.status.non-applicabile {
+    background-color: #d3d3f3;
 }
-.status.drag-down {
-    background: linear-gradient(to bottom, #e0e0e0 30%, #fff);
+
+.status.preview {
+    filter: brightness(1.2);
 }
 
 textarea {
@@ -92,17 +67,16 @@ textarea {
 }
 
 button {
-    background-color: #007bff;
+    margin-top: 1em;
+    padding: 0.75em 1.5em;
+    font-size: 1em;
+    background-color: #3498db;
     color: white;
     border: none;
-    padding: 10px 15px;
-    font-size: 16px;
     border-radius: 5px;
     cursor: pointer;
-    transition: background 0.3s ease;
-    margin-top: 20px;
 }
 
 button:hover {
-    background-color: #0056b3;
+    background-color: #2980b9;
 }
