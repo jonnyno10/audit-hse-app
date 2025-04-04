@@ -1,4 +1,4 @@
-const SHEET_ID = "2PACX-1vTPQ2rb9ES4v_bsafPHwu4PbdHaanFZ9uh6vy5Mrbc9re4eKqTK19OfmzUvytSL0SNHTrmgGpax3vHE";
+const SHEET_ID = "1CNopIVdSKPdb4L6Bp6-rF4mluabO7znPI_FuWtpGAYs";
 const API_KEY = "AIzaSyA5jmTA54BAziJFzNfFH9Vf3mFen8kTfjMY";
 const SHEET_NAME = "Foglio1"; // Cambia se il foglio ha un nome diverso
 
