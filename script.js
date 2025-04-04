@@ -90,16 +90,12 @@ function applySwipeLogic(dx, dy, cell) {
             setStatus(cell, "Conforme", "conforme");
         } else if (dx < -30) {
             setStatus(cell, "Non Conforme", "non-conforme");
-        } else {
-            previewBackground(cell, "conforme");
         }
     } else {
         if (dy < -30) {
             setStatus(cell, "Non Applicabile", "non-applicabile");
         } else if (dy > 30) {
             setStatus(cell, "-", "vuoto");
-        } else {
-            previewBackground(cell, "non-applicabile");
         }
     }
 }
@@ -108,11 +104,6 @@ function applySwipeLogic(dx, dy, cell) {
 function setStatus(cell, text, statusClass) {
     cell.textContent = text;
     cell.className = `status ${statusClass}`;
-}
-
-// Mostra anteprima animata sfondo durante swipe
-function previewBackground(cell, statusClass) {
-    cell.className = `status ${statusClass} preview`;
 }
 
 // Ripristina lo sfondo alla fine del trascinamento
