@@ -1,39 +1,30 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Audit Documentale Sicurezza</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Audit Documentale Sicurezza</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <header>
-        Audit Documentale Sicurezza
-    </header>
-    <div class="container">
-        <h2>Checklist Audit</h2>
-        <table>
-            <tr>
-                <th>#</th>
-                <th>Domanda</th>
-                <th>Stato</th>
-                <th>Note</th>
-            </tr>
-            <tr class="draggable-row">
-                <td>1</td>
-                <td class="no-select">Verifica documentazione valutazione rischi</td>
-                <td class="status vuoto">-</td>
-                <td><textarea rows="2"></textarea></td>
-            </tr>
-            <tr class="draggable-row">
-                <td>2</td>
-                <td class="no-select">Controllo registro infortuni</td>
-                <td class="status vuoto">-</td>
-                <td><textarea rows="2"></textarea></td>
-            </tr>
-        </table>
-        <button onclick="confermaChecklist()">Conferma</button>
-    </div>
-    <script src="script.js"></script>
+  <header>
+    Audit Documentale Sicurezza
+  </header>
+
+  <div class="container">
+    <h2>Checklist Audit</h2>
+    <table id="checklist-table">
+      <tr>
+        <th>#</th>
+        <th>Domanda</th>
+        <th>Stato</th>
+        <th>Note</th>
+      </tr>
+      <!-- Le righe verranno aggiunte dinamicamente -->
+    </table>
+    <button onclick="confermaChecklist()">Conferma</button>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
