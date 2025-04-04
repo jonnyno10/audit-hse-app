@@ -3,7 +3,7 @@ const API_KEY = "AIzaSyA5jmTA54BAziJFzNfFH9Vf3mFen8kTfjM";
 const SHEET_ID = "1CNopIVdSKPdb4L6Bp6-rF4mluabO7znPI_FuWtpGAYs";
 const SHEET_NAME = "Foglio1"; // Assicurati che corrisponda esattamente
 
-const tableBody = document.querySelector("#checklist tbody");
+const tableBody = document.querySelector("#table-body");
 
 // Trascinamento: Variabili globali
 let startX, startY, isDragging = false;
