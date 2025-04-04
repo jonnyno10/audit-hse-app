@@ -1,149 +1,161 @@
-// script.js
-
-// CONFIGURAZIONE
+// CONFIGURAZIONE: Inserisci la tua API key e ID del foglio
 const API_KEY = "AIzaSyA5jmTA54BAziJFzNfFH9Vf3mFen8kTfjM";
 const SHEET_ID = "1CNopIVdSKPdb4L6Bp6-rF4mluabO7znPI_FuWtpGAYs";
-const SHEET_NAME = "Foglio1";
+const SHEET_NAME = "Foglio1"; // Assicurati che corrisponda esattamente
 
-const tableBody = document.querySelector("#table-body");
+const tableBody = document.querySelector("#checklist tbody");
 
 // Trascinamento: Variabili globali
 let startX, startY, isDragging = false;
-
-// Stato → colore e label
-const STATES = [
-  { label: "-", className: "vuoto" },
-  { label: "Conforme", className: "conforme" },
-  { label: "Non Conforme", className: "non-conforme" },
-  { label: "Non Applicabile", className: "non-applicabile" }
-];
 
 // ─────────────────────────────────────
 // FETCH DOMANDE DA GOOGLE SHEETS
 // ─────────────────────────────────────
 async function fetchQuestions() {
-  try {
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}!A2:A1000?key=${API_KEY}`;
-    const response = await fetch(url);
-    const data = await response.json();
+    try {
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}!A2:A1000?key=${API_KEY}`;
+        const response = await fetch(url);
+        const data = await response.json();
 
-    if (!data.values || data.values.length === 0) {
-      console.error("Nessuna domanda trovata nel foglio Google Sheet.");
-      return;
+        if (!data.values || data.values.length === 0) {
+            console.error("Nessuna domanda trovata nel foglio Google Sheet.");
+            return;
+        }
+
+        tableBody.innerHTML = "";
+
+        data.values.forEach((row, index) => {
+            const domanda = row[0];
+            if (domanda) {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td class="domanda">${domanda}</td>
+                    <td class="status vuoto" data-status="vuoto">-</td>
+                    <td><textarea rows="2"></textarea></td>
+                `;
+                addDragEvents(tr.querySelector(".status"));
+                tableBody.appendChild(tr);
+            }
+        });
+
+    } catch (error) {
+        console.error("Errore nel recupero delle domande:", error);
+    }
+}
+
+// ─────────────────────────────────────
+// GESTIONE TRASCINAMENTO MOBILE SOLO SULLA CELLA "STATO"
+// ─────────────────────────────────────
+function handleTouchStart(event) {
+    const touch = event.touches[0];
+    startX = touch.clientX;
+    startY = touch.clientY;
+    isDragging = false;
+    event.currentTarget.classList.add("dragging-active");
+}
+
+function handleTouchMove(event) {
+    const touch = event.touches[0];
+    const cell = event.currentTarget;
+    const movementX = touch.clientX - startX;
+    const movementY = touch.clientY - startY;
+
+    if (Math.abs(movementX) > 10 || Math.abs(movementY) > 10) {
+        isDragging = true;
+        document.body.style.overflow = "hidden";
     }
 
-    tableBody.innerHTML = "";
+    event.preventDefault();
 
-    data.values.forEach((row, index) => {
-      const domanda = row[0];
-      if (domanda) {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${index + 1}</td>
-          <td class="domanda">${domanda}</td>
-          <td class="status-cell">
-            <div class="status vuoto" draggable="true">
-              <span class="status-label">-</span>
-              <div class="status-arrows">
-                <span class="arrow">⬅️</span>
-                <span class="arrow">➡️</span>
-                <span class="arrow">⬆️</span>
-                <span class="arrow">⬇️</span>
-              </div>
-            </div>
-          </td>
-          <td><textarea rows="2"></textarea></td>
-        `;
-        addDragEvents(tr);
-        tableBody.appendChild(tr);
-      }
-    });
+    applyDirectionToCell(cell, movementX, movementY);
+}
 
-  } catch (error) {
-    console.error("Errore nel recupero delle domande:", error);
-  }
+function handleTouchEnd(event) {
+    document.body.style.overflow = "auto";
+    const cell = event.currentTarget;
+    finalizeStatus(cell);
+    cell.classList.remove("dragging-active", "left", "right", "up", "down");
 }
 
 // ─────────────────────────────────────
-// GESTIONE TRASCINAMENTO
+// GESTIONE TRASCINAMENTO DESKTOP SOLO SULLA CELLA "STATO"
 // ─────────────────────────────────────
-function addDragEvents(row) {
-  const statusDiv = row.querySelector(".status");
+function handleMouseDown(event) {
+    startX = event.clientX;
+    startY = event.clientY;
+    isDragging = false;
+    const cell = event.currentTarget;
+    cell.classList.add("dragging-active");
 
-  statusDiv.addEventListener("touchstart", handleTouchStart);
-  statusDiv.addEventListener("touchmove", (e) => handleTouchMove(e, statusDiv));
-  statusDiv.addEventListener("touchend", handleTouchEnd);
+    function mouseMoveHandler(e) {
+        const movementX = e.clientX - startX;
+        const movementY = e.clientY - startY;
+        applyDirectionToCell(cell, movementX, movementY);
+    }
 
-  statusDiv.addEventListener("mousedown", (e) => handleMouseDown(e, statusDiv));
+    function mouseUpHandler() {
+        finalizeStatus(cell);
+        cell.classList.remove("dragging-active", "left", "right", "up", "down");
+        document.removeEventListener("mousemove", mouseMoveHandler);
+        document.removeEventListener("mouseup", mouseUpHandler);
+    }
+
+    document.addEventListener("mousemove", mouseMoveHandler);
+    document.addEventListener("mouseup", mouseUpHandler);
 }
 
-function handleTouchStart(event) {
-  const touch = event.touches[0];
-  startX = touch.clientX;
-  startY = touch.clientY;
-  isDragging = false;
+// ─────────────────────────────────────
+// APPLICA DIREZIONE COME CLASSE TEMPORANEA
+// ─────────────────────────────────────
+function applyDirectionToCell(cell, movementX, movementY) {
+    cell.classList.remove("left", "right", "up", "down");
+
+    if (Math.abs(movementX) > Math.abs(movementY)) {
+        if (movementX > 30) cell.classList.add("right");
+        else if (movementX < -30) cell.classList.add("left");
+    } else {
+        if (movementY < -30) cell.classList.add("up");
+        else if (movementY > 30) cell.classList.add("down");
+    }
 }
 
-function handleTouchMove(event, element) {
-  const touch = event.touches[0];
-  const movementX = touch.clientX - startX;
-  const movementY = touch.clientY - startY;
-  isDragging = true;
-  event.preventDefault();
-
-  updateStatusByDirection(element, movementX, movementY);
+// ─────────────────────────────────────
+// ASSEGNA LO STATO FINALE ALLA CELLA
+// ─────────────────────────────────────
+function finalizeStatus(cell) {
+    if (cell.classList.contains("right")) {
+        cell.textContent = "Conforme";
+        cell.className = "status conforme";
+    } else if (cell.classList.contains("left")) {
+        cell.textContent = "Non Conforme";
+        cell.className = "status non-conforme";
+    } else if (cell.classList.contains("up")) {
+        cell.textContent = "Non Applicabile";
+        cell.className = "status non-applicabile";
+    } else if (cell.classList.contains("down")) {
+        cell.textContent = "-";
+        cell.className = "status vuoto";
+    }
 }
 
-function handleTouchEnd() {
-  document.body.style.overflow = "auto";
-}
+// ─────────────────────────────────────
+// AGGIUNTA EVENTI A SINGOLA CELLA "STATO"
+// ─────────────────────────────────────
+function addDragEvents(cell) {
+    cell.addEventListener("touchstart", handleTouchStart);
+    cell.addEventListener("touchmove", handleTouchMove);
+    cell.addEventListener("touchend", handleTouchEnd);
 
-function handleMouseDown(event, element) {
-  startX = event.clientX;
-  startY = event.clientY;
-  isDragging = false;
-
-  const onMouseMove = (e) => {
-    isDragging = true;
-    const movementX = e.clientX - startX;
-    const movementY = e.clientY - startY;
-    updateStatusByDirection(element, movementX, movementY);
-  };
-
-  const onMouseUp = () => {
-    document.removeEventListener("mousemove", onMouseMove);
-    document.removeEventListener("mouseup", onMouseUp);
-  };
-
-  document.addEventListener("mousemove", onMouseMove);
-  document.addEventListener("mouseup", onMouseUp);
-}
-
-function updateStatusByDirection(statusElement, dx, dy) {
-  const labelSpan = statusElement.querySelector(".status-label");
-
-  if (Math.abs(dx) > Math.abs(dy)) {
-    if (dx > 30) setStatus(statusElement, 1); // Conforme
-    else if (dx < -30) setStatus(statusElement, 2); // Non Conforme
-  } else {
-    if (dy < -30) setStatus(statusElement, 3); // Non Applicabile
-    else if (dy > 30) setStatus(statusElement, 0); // Vuoto
-  }
-}
-
-function setStatus(element, index) {
-  const { label, className } = STATES[index];
-  const labelSpan = element.querySelector(".status-label");
-
-  labelSpan.textContent = label;
-  element.className = `status ${className}`;
+    cell.addEventListener("mousedown", handleMouseDown);
 }
 
 // ─────────────────────────────────────
 // CONFERMA CHECKLIST
 // ─────────────────────────────────────
 function confermaChecklist() {
-  alert("Checklist salvata con successo!");
+    alert("Checklist salvata con successo!");
 }
 
+// Avvia al caricamento
 window.onload = fetchQuestions;
