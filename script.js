@@ -1,5 +1,5 @@
 // CONFIGURAZIONE: Inserisci la tua API key e ID del foglio
-const API_KEY = "INSERISCI_LA_TUA_API_KEY";
+const API_KEY = "AIzaSyA5jmTA54BAziJFzNfFH9Vf3mFen8kTfjM";
 const SHEET_ID = "1CNopIVdSKPdb4L6Bp6-rF4mluabO7znPI_FuWtpGAYs";
 const SHEET_NAME = "Foglio1"; // Assicurati che corrisponda esattamente
 
