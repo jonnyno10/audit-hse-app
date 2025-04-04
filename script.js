@@ -1,72 +1,76 @@
-let startX = 0, startY = 0;
-let draggedElem = null;
-let originalTransform = "";
+let startX, startY;
+let isDragging = false;
 
-function getStatusByDirection(dx, dy) {
-  if (Math.abs(dx) > Math.abs(dy)) {
-    if (dx > 30) return { text: "Conforme", className: "status conforme" };
-    if (dx < -30) return { text: "Non Conforme", className: "status non-conforme" };
-  } else {
-    if (dy < -30) return { text: "Non Applicabile", className: "status non-applicabile" };
-    if (dy > 30) return { text: "-", className: "status vuoto" };
-  }
-  return null;
+function updateStatusByDirection(row, dx, dy) {
+    const statusCell = row.querySelector(".status");
+
+    if (Math.abs(dx) > Math.abs(dy)) {
+        // Movimento orizzontale
+        if (dx > 30) {
+            statusCell.textContent = "Conforme";
+            statusCell.className = "status conforme";
+        } else if (dx < -30) {
+            statusCell.textContent = "Non Conforme";
+            statusCell.className = "status non-conforme";
+        }
+    } else {
+        // Movimento verticale
+        if (dy < -30) {
+            statusCell.textContent = "Non Applicabile";
+            statusCell.className = "status non-applicabile";
+        } else if (dy > 30) {
+            statusCell.textContent = "-";
+            statusCell.className = "status vuoto";
+        }
+    }
 }
 
-function applyStatusFromMovement(elem, dx, dy) {
-  const row = elem.parentElement;
-  const statusCell = row.cells[2];
-  const status = getStatusByDirection(dx, dy);
-  if (status) {
-    statusCell.textContent = status.text;
-    statusCell.className = status.className;
-  }
+function attachListeners(row) {
+    let active = false;
+
+    // Mouse
+    row.addEventListener("mousedown", e => {
+        startX = e.clientX;
+        startY = e.clientY;
+        active = true;
+    });
+
+    document.addEventListener("mousemove", e => {
+        if (!active) return;
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        updateStatusByDirection(row, dx, dy);
+    });
+
+    document.addEventListener("mouseup", () => {
+        active = false;
+    });
+
+    // Touch
+    row.addEventListener("touchstart", e => {
+        const touch = e.touches[0];
+        startX = touch.clientX;
+        startY = touch.clientY;
+        active = true;
+    });
+
+    row.addEventListener("touchmove", e => {
+        if (!active) return;
+        const touch = e.touches[0];
+        const dx = touch.clientX - startX;
+        const dy = touch.clientY - startY;
+        updateStatusByDirection(row, dx, dy);
+    });
+
+    row.addEventListener("touchend", () => {
+        active = false;
+    });
 }
 
-function resetTransform(elem) {
-  elem.style.transform = originalTransform;
-}
-
-function onStart(e, elem) {
-  const point = e.touches ? e.touches[0] : e;
-  startX = point.clientX;
-  startY = point.clientY;
-  draggedElem = elem;
-  originalTransform = elem.style.transform || "";
-  document.body.style.userSelect = "none";
-}
-
-function onMove(e) {
-  if (!draggedElem) return;
-  const point = e.touches ? e.touches[0] : e;
-  const dx = point.clientX - startX;
-  const dy = point.clientY - startY;
-  draggedElem.style.transform = `translate(${dx}px, ${dy}px)`;
-  applyStatusFromMovement(draggedElem, dx, dy);
-}
-
-function onEnd() {
-  if (!draggedElem) return;
-  resetTransform(draggedElem);
-  document.body.style.userSelect = "auto";
-  draggedElem = null;
-}
-
-document.querySelectorAll(".draggable").forEach(elem => {
-  // Touch
-  elem.addEventListener("touchstart", e => onStart(e, elem));
-  elem.addEventListener("touchmove", e => {
-    onMove(e);
-    e.preventDefault();
-  });
-  elem.addEventListener("touchend", onEnd);
-
-  // Mouse
-  elem.addEventListener("mousedown", e => onStart(e, elem));
-  document.addEventListener("mousemove", onMove);
-  document.addEventListener("mouseup", onEnd);
+document.querySelectorAll(".draggable-row").forEach(row => {
+    attachListeners(row);
 });
 
 function confermaChecklist() {
-  alert("Checklist salvata con successo!");
+    alert("Checklist salvata con successo!");
 }
