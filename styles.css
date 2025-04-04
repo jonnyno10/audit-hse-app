@@ -1,15 +1,17 @@
+/* Reset e impaginazione base */
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f4;
     margin: 0;
-    padding: 0;
+    padding: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    padding: 20px;
+    justify-content: flex-start;
+    min-height: 100vh;
 }
 
+/* Header */
 header {
     background-color: #007bff;
     color: white;
@@ -21,6 +23,7 @@ header {
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
 
+/* Contenitore principale */
 .container {
     background: white;
     padding: 30px;
@@ -28,9 +31,9 @@ header {
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     max-width: 800px;
     width: 100%;
-    text-align: left;
 }
 
+/* Tabella checklist */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -41,25 +44,51 @@ th, td {
     border: 1px solid #ddd;
     padding: 8px;
     text-align: left;
+    vertical-align: middle;
 }
 
 th {
     background-color: #007bff;
     color: white;
+    font-weight: bold;
 }
 
+/* Stato: colori e stili */
 .status {
     text-align: center;
     font-weight: bold;
     user-select: none;
     transition: background 0.3s ease;
+    cursor: grab;
 }
 
-.conforme { background-color: green; color: white; }
-.non-conforme { background-color: red; color: white; }
-.non-applicabile { background-color: blue; color: white; }
-.vuoto { background-color: white; color: black; }
+.conforme {
+    background-color: green;
+    color: white;
+}
 
+.non-conforme {
+    background-color: red;
+    color: white;
+}
+
+.non-applicabile {
+    background-color: blue;
+    color: white;
+}
+
+.vuoto {
+    background-color: white;
+    color: black;
+}
+
+/* Disabilita selezione testo per alcune celle */
+.no-select {
+    user-select: none;
+    cursor: grab;
+}
+
+/* Bottone conferma */
 button {
     background-color: #007bff;
     color: white;
@@ -76,7 +105,18 @@ button:hover {
     background-color: #0056b3;
 }
 
-.no-select {
-    user-select: none;
-    cursor: grab;
+/* Responsive */
+@media (max-width: 600px) {
+    .container {
+        padding: 20px;
+    }
+
+    th, td {
+        font-size: 14px;
+        padding: 6px;
+    }
+
+    button {
+        width: 100%;
+    }
 }
