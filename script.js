@@ -260,7 +260,7 @@ function exportToGoogleSheets() {
         dati.push({ numero, domanda, stato, nota });
     });
 
-    fetch("https://script.google.com/macros/s/AKfycby10KSOVhg4ky7vyROpud2GB644CHxas4hK-CKjxZj31RM6KwGqgSlXJCH_TntN3FeMyQ/exec", {
+    fetch("https://script.google.com/macros/s/AKfycbxpQRGCgoywb3IhtS2ZBH2cer09UbKNsBFk7SmPWNGszOn6WfWNq2DmR-K5MfSUE_u3Lw/exec", {
         method: "POST",
         body: JSON.stringify(dati),
         headers: { "Content-Type": "application/json" }
